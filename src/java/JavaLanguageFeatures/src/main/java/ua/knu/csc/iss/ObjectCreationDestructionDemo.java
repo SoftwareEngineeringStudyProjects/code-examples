@@ -11,6 +11,7 @@ class MyObject {
     }
 
     // Finalizer (Note: Not recommended for general use)
+    @SuppressWarnings({"deprecation", "removal"}) // removal should be correct, but IntelliJ IDEA still shows error
     @Override
     protected void finalize() throws Throwable {
         System.out.println("MyObject " + id + " destroyed!");
