@@ -11,7 +11,7 @@ class MyObject {
     }
 
     // Finalizer (Note: Not recommended for general use)
-    @SuppressWarnings({"deprecation", "removal"}) // removal should be correct, but IntelliJ IDEA still shows error
+    @SuppressWarnings({ "removal"}) // removal should be correct, but IntelliJ IDEA still shows error
     @Override
     protected void finalize() throws Throwable {
         System.out.println("MyObject " + id + " destroyed!");
@@ -34,11 +34,15 @@ public class ObjectCreationDestructionDemo {
         // Suggest garbage collection (not guaranteed to run immediately)
         System.gc();
 
-        // Wait a moment to allow for garbage collection
-        try {
-            Thread.sleep(1000); // Pause for 1 second
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        boolean waitForGC = false;
+
+        if (waitForGC) {
+            // Wait a moment to allow for garbage collection
+            try {
+                Thread.sleep(1000); // Pause for 1 second
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         // Set obj2 to null, making it also eligible for garbage collection
