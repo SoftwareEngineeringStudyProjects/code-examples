@@ -21,8 +21,12 @@ class MyObject {
                 '}';
     }
 
-    public WeakReference<MyObjectNoFinalize> getWeakRef() {
+    public WeakReference<MyObjectNoFinalize> getWeakRefNoFinalize() {
         return new WeakReference<>(objNoFinalize);
+    }
+
+    public WeakReference<MyObjectFinalize> getWeakRefFinalize() {
+        return new WeakReference<>(objFinalize);
     }
 }
 
@@ -67,9 +71,11 @@ public class ObjectCreationDestructionDemo {
 
         // Create new objects with distinct identifiers
         MyObject obj1 = new MyObject("1");
-        WeakReference<MyObjectNoFinalize> ref1 = obj1.getWeakRef();
+        WeakReference<MyObjectNoFinalize> ref1n = obj1.getWeakRefNoFinalize();
+        WeakReference<MyObjectFinalize> ref1f = obj1.getWeakRefFinalize();
         MyObject obj2 = new MyObject("2");
-        WeakReference<MyObjectNoFinalize> ref2 = obj2.getWeakRef();
+        WeakReference<MyObjectNoFinalize> ref2n = obj2.getWeakRefNoFinalize();
+        WeakReference<MyObjectFinalize> ref2f = obj2.getWeakRefFinalize();
 
         // Set obj1 to null, making it eligible for garbage collection
         obj1 = null;
@@ -89,7 +95,8 @@ public class ObjectCreationDestructionDemo {
             }
         }
 
-        checkWeakRef(ref1, "1");
+        checkWeakRefNoFinalize(ref1n, "1");
+        checkWeakRefFinalize(ref1f, "1");
 
         // Set obj2 to null, making it also eligible for garbage collection
         obj2 = null;
@@ -105,14 +112,23 @@ public class ObjectCreationDestructionDemo {
             e.printStackTrace();
         }
 
-        checkWeakRef(ref2, "2");
+        checkWeakRefNoFinalize(ref2n, "2");
+        checkWeakRefFinalize(ref2f, "2");
 
         System.out.println("End of main method.");
     }
 
-    private static void checkWeakRef(WeakReference<MyObjectNoFinalize> ref1, String id) {
+    private static void checkWeakRefNoFinalize(WeakReference<MyObjectNoFinalize> ref1, String id) {
         if (ref1.get() == null) {
-            System.out.println("After GC: The object has been collected, id=" + id);
+            System.out.println("After GC: The object (no finalize) has been collected, id=" + id);
+        } else {
+            System.out.println("After GC: WeakReference.get() = " + ref1.get().getId());
+        }
+    }
+
+    private static void checkWeakRefFinalize(WeakReference<MyObjectFinalize> ref1, String id) {
+        if (ref1.get() == null) {
+            System.out.println("After GC: The object (finalize) has been collected, id=" + id);
         } else {
             System.out.println("After GC: WeakReference.get() = " + ref1.get().getId());
         }
