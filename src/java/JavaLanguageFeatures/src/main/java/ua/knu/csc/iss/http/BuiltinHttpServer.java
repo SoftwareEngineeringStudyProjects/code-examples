@@ -20,6 +20,9 @@ public class BuiltinHttpServer {
         // Define the context to listen for requests to "/hello"
         server.createContext("/hello", new HelloHandler());
 
+        // Define a catch-all handler for other requests
+        server.createContext("/", new DefaultHandler());
+
         // Start the server
         System.out.println("Server is listening on port "+port+"...");
         server.start();
@@ -79,6 +82,55 @@ public class BuiltinHttpServer {
             // Write the response to the output stream
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(byteArrayOutputStream.toByteArray());
+            }
+            System.out.println("Response sent.");
+        }
+    }
+
+    // This handler will handle any other requests and return an error response
+    static class DefaultHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            // Log the HTTP request details
+            System.out.println("Received HTTP request:");
+            System.out.println("Request Method: " + exchange.getRequestMethod());
+            System.out.println("Request URI: " + exchange.getRequestURI());
+
+            // Log request headers
+            Map<String, java.util.List<String>> requestHeaders = exchange.getRequestHeaders();
+            System.out.println("Request Headers:");
+            for (Map.Entry<String, java.util.List<String>> header : requestHeaders.entrySet()) {
+                System.out.println(header.getKey() + ": " + String.join(", ", header.getValue()));
+            }
+
+            // Log request body (if any)
+            InputStream requestBodyStream = exchange.getRequestBody();
+            String requestBody = new String(requestBodyStream.readAllBytes());
+            if (!requestBody.isEmpty()) {
+                System.out.println("Request Body:");
+                System.out.println(requestBody);
+            }
+
+            // Create the error response message
+            String response = "Error: Not Found";
+
+            // Send the response headers with 404 status
+            exchange.sendResponseHeaders(404, response.getBytes().length);
+
+            // Log the response headers
+            Map<String, java.util.List<String>> responseHeaders = exchange.getResponseHeaders();
+            System.out.println("Response Headers:");
+            for (Map.Entry<String, java.util.List<String>> header : responseHeaders.entrySet()) {
+                System.out.println(header.getKey() + ": " + String.join(", ", header.getValue()));
+            }
+
+            // Log the response body
+            System.out.println("Response Body:");
+            System.out.println(response);
+
+            // Write the response to the output stream
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(response.getBytes());
             }
         }
     }
