@@ -32,6 +32,7 @@ public class SocketHttpClient {
             StringBuilder response = new StringBuilder();
 
             while ((responseLine = in.readLine()) != null) {
+                System.out.println(">"+responseLine);
                 response.append(responseLine).append("\n");
             }
 
