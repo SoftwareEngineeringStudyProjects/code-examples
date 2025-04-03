@@ -5,8 +5,8 @@ User should be able to login into their Google Account and access documents.
 Use OAuth?
 
 API:
-* getOAuthUrl(): returns URL that user should follow to login
-* getCredentials(): returns credentials object that will be used in other methods
+* Credentials objects
+* CredentialStore.getCredentials(userId)
 
 ## Get list of documents/folders in a folder 
 
