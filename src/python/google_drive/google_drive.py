@@ -126,6 +126,30 @@ class GoogleDriveService:
             for item in items:
                 print(f'{item["name"]} ({item["id"]})')
 
+    def list_folder_contents(self, folder_id: str) -> list[dict]:
+        """
+        Lists all files and folders within a given folder ID.
+        """
+        if self.drive_service is None:
+            self.build_service()
+
+        files = []
+        page_token = None
+
+        while True:
+            response = self.drive_service.files().list(
+                q=f"'{folder_id}' in parents and trashed = false",
+                spaces='drive',
+                fields="nextPageToken, files(id, name, mimeType)",
+                pageToken=page_token
+            ).execute()
+
+            files.extend(response.get('files', []))
+            page_token = response.get('nextPageToken', None)
+            if page_token is None:
+                break
+
+        return files
 
 def main() -> None:
     # Instantiate the ClientSecrets class to get client_id and client_secret
@@ -138,7 +162,9 @@ def main() -> None:
     drive_service = GoogleDriveService(user_credentials)
 
     # List files on the user's Google Drive
-    drive_service.list_files(page_size=5)
+    #drive_service.list_files(page_size=5)
+    files = drive_service.list_folder_contents("1m9VQD2qohGoRJqKEwkgtpKAloTshm1W1")
+    print(files)
 
 if __name__ == '__main__':
     main()
