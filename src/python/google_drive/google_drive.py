@@ -155,6 +155,49 @@ class GoogleDriveService:
 
         return items
 
+    def list_folder_contents_recursive(self, folder_id: str) -> DriveFolder:
+        if self.drive_service is None:
+            self.build_service()
+
+        folder_metadata = self.drive_service.files().get(
+            fileId=folder_id,
+            fields="id, name, mimeType"
+        ).execute()
+
+        root_folder = DriveFolder(folder_metadata['id'], folder_metadata['name'], folder_metadata['mimeType'])
+        self._populate_folder_children(root_folder)
+        return root_folder
+
+    def _populate_folder_children(self, folder: DriveFolder):
+        page_token: str | None = None
+
+        while True:
+            response = self.drive_service.files().list(
+                q=f"'{folder.id}' in parents and trashed = false",
+                spaces='drive',
+                fields="nextPageToken, files(id, name, mimeType)",
+                pageToken=page_token
+            ).execute()
+
+            for file in response.get('files', []):
+                if file['mimeType'] == "application/vnd.google-apps.folder":
+                    subfolder = DriveFolder(file['id'], file['name'], file['mimeType'])
+                    self._populate_folder_children(subfolder)  # Recursively populate
+                    folder.add_child(subfolder)
+                else:
+                    drive_file = DriveFile(file['id'], file['name'], file['mimeType'])
+                    folder.add_child(drive_file)
+
+            page_token = response.get('nextPageToken')
+            if page_token is None:
+                break
+
+def print_structure(item: DriveItem, indent: int = 0):
+    print("  " * indent + f"- {item.name} ({'Folder' if item.is_folder() else 'File'})")
+    if isinstance(item, DriveFolder):
+        for child in item.children:
+            print_structure(child, indent + 1)
+
 def main() -> None:
     # Instantiate the ClientSecrets class to get client_id and client_secret
     client_secrets = ClientSecrets()
@@ -167,8 +210,9 @@ def main() -> None:
 
     # List files on the user's Google Drive
     #drive_service.list_files(page_size=5)
-    files = drive_service.list_folder_contents("1m9VQD2qohGoRJqKEwkgtpKAloTshm1W1")
-    print(files)
+    root_dir = drive_service.list_folder_contents_recursive("1m9VQD2qohGoRJqKEwkgtpKAloTshm1W1")
+
+    print_structure(root_dir)
 
 if __name__ == '__main__':
     main()

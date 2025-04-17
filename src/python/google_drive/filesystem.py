@@ -12,8 +12,16 @@ class DriveItem:
 
 
 class DriveFile(DriveItem):
-    pass  # Extend with file-specific behavior later if needed
+    pass
 
 
 class DriveFolder(DriveItem):
-    pass  # Extend with folder-specific behavior later if needed
+    def __init__(self, id: str, name: str, mime_type: str):
+        super().__init__(id, name, mime_type)
+        self.children: list[DriveItem] = []
+
+    def add_child(self, item: DriveItem):
+        self.children.append(item)
+
+    def __repr__(self):
+        return f"DriveFolder(name='{self.name}', id='{self.id}', children={len(self.children)})"
