@@ -3,6 +3,8 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
+from filesystem import DriveItem, DriveFile, DriveFolder
+
 import json
 
 class ClientSecrets:
@@ -126,15 +128,12 @@ class GoogleDriveService:
             for item in items:
                 print(f'{item["name"]} ({item["id"]})')
 
-    def list_folder_contents(self, folder_id: str) -> list[dict]:
-        """
-        Lists all files and folders within a given folder ID.
-        """
+    def list_folder_contents(self, folder_id: str) -> list[DriveItem]:
         if self.drive_service is None:
             self.build_service()
 
-        files = []
-        page_token = None
+        items: list[DriveItem] = []
+        page_token: str | None = None
 
         while True:
             response = self.drive_service.files().list(
@@ -144,12 +143,17 @@ class GoogleDriveService:
                 pageToken=page_token
             ).execute()
 
-            files.extend(response.get('files', []))
-            page_token = response.get('nextPageToken', None)
+            for file in response.get('files', []):
+                if file['mimeType'] == "application/vnd.google-apps.folder":
+                    items.append(DriveFolder(file['id'], file['name'], file['mimeType']))
+                else:
+                    items.append(DriveFile(file['id'], file['name'], file['mimeType']))
+
+            page_token = response.get('nextPageToken')
             if page_token is None:
                 break
 
-        return files
+        return items
 
 def main() -> None:
     # Instantiate the ClientSecrets class to get client_id and client_secret
