@@ -1,4 +1,4 @@
-package com.example;
+package ua.knu.csc.iss;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

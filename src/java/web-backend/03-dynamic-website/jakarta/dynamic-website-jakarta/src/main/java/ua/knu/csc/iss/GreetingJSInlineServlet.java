@@ -1,4 +1,4 @@
-package com.example;
+package ua.knu.csc.iss;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
-@WebServlet("/greeting-js")
+@WebServlet("/greeting-js-inline")
 public class GreetingJSInlineServlet extends HttpServlet {
 
     private static final String[] QUOTES = {
