@@ -1,4 +1,6 @@
 from datetime import datetime
+
+from google.auth.exceptions import RefreshError
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -38,8 +40,6 @@ class ClientSecrets:
 
 
 import os
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
 
 
 class UserCredentials:
@@ -54,19 +54,31 @@ class UserCredentials:
     def build_credentials(self, scopes: list[str] = None) -> Credentials:
         """
         Builds the credentials for the user, either from the token file or by going through OAuth flow.
+        Handles the case when the refresh token is invalid or revoked.
         """
         if scopes is None:
             scopes = ['https://www.googleapis.com/auth/drive.readonly']
 
+        self.creds = None
+
         # Load existing credentials if available
         if os.path.exists(self.token_path):
-            self.creds = Credentials.from_authorized_user_file(self.token_path, scopes)
+            try:
+                self.creds = Credentials.from_authorized_user_file(self.token_path, scopes)
+            except Exception as e:
+                print(f"Failed to load credentials from token file: {e}")
+                self.creds = None
 
         # If credentials are expired or not present, refresh or start OAuth flow
         if not self.creds or not self.creds.valid:
             if self.creds and self.creds.expired and self.creds.refresh_token:
-                self.creds.refresh(Request())
-            else:
+                try:
+                    self.creds.refresh(Request())
+                except RefreshError as e:
+                    print(f"Refresh token is invalid or revoked: {e}")
+                    self.creds = None  # Force re-authentication below
+
+            if not self.creds or not self.creds.valid:
                 flow = InstalledAppFlow.from_client_secrets_file(
                     'client_secrets.json', scopes)
                 self.creds = flow.run_local_server(port=0)
@@ -76,6 +88,7 @@ class UserCredentials:
                 token_file.write(self.creds.to_json())
 
         return self.creds
+
 
     def refresh_credentials(self) -> None:
         """
