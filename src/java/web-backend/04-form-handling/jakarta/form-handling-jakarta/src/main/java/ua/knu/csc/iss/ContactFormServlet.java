@@ -20,6 +20,9 @@ public class ContactFormServlet extends HttpServlet {
         String message = request.getParameter("message") == null ? "" : request.getParameter("message").trim();
 
         if (name.isEmpty() || email.isEmpty()) {
+            System.out.println("Validation failed: Missing required fields.");
+            System.out.println("Received name: '" + name + "', email: '" + email + "'");
+
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Name and email are required.");
             return;
         }
