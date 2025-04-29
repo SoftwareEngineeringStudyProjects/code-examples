@@ -38,4 +38,7 @@ echo "🟢 Starting Tomcat..."
 "$TOMCAT_BIN_DIR/startup.sh"
 
 echo "✅ Deployment complete."
-echo "open in browser: http://localhost:8080/${WAR_NAME%.war}/greeting"
+echo "open in browser (initial version): http://localhost:8080/${WAR_NAME%.war}/greeting"
+echo "open in browser (JS inline): http://localhost:8080/${WAR_NAME%.war}/greeting-js-inline"
+echo "open in browser (JS in separate file): http://localhost:8080/${WAR_NAME%.war}/greeting-js-file"
+echo "open in browser (JSP): http://localhost:8080/${WAR_NAME%.war}/greeting-jsp"
