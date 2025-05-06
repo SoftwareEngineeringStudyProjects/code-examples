@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.*;
 
-@WebServlet("/contact")
+@WebServlet("/contact-no-prg")
 public class ContactFormServlet extends HttpServlet {
     private static final String FILE_PATH = "./contacts.csv"; // Change as needed
 
