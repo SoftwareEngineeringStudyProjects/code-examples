@@ -5,6 +5,7 @@
 - **Technologies**: Node.js with Express, Flask, Django (basic setup).
 - **Description**: Start with the most basic step—setting up a web server that serves a "Hello, World!" message. This helps you understand how web servers handle requests and respond with simple data.
 - **Key Takeaways**: Understand how a web server works, how to define routes, and how to send basic responses.
+- **Possible AI Prompt**: Create web application that processes /hello endpoint and responds with "hello world" message (in plain text). Use *Node.js with Express*. Provide all needed files with code, configuration, etc. Also provide detailed instructions how to run this code.
 
 ## 2. Serve a Static Web Page
 - **Concepts**: Static content serving.
